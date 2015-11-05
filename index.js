@@ -109,12 +109,8 @@ function Xray() {
         // ensure that attribute is a URL
         var url = resolve(parent, false, source);
         if (!isUrl(url)) {
-          debug('%s is not a url!', url);
-
-          var $ = load("");
-          return node.html($, next);
-
-          // return next(new Error(url + ' is not a URL'));
+          debug('%s is not a url. Skipping!', url);
+          return node.html(load(""), next);
         }
 
         if (isArray(url)) {
