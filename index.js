@@ -110,7 +110,8 @@ function Xray() {
         var url = resolve(parent, false, source);
         if (!isUrl(url)) {
           debug('%s is not a url!', url);
-          return next(new Error(url + ' is not a URL'));
+          return;
+          // return next(new Error(url + ' is not a URL'));
         }
 
         if (isArray(url)) {
