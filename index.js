@@ -32,7 +32,7 @@ var error = require('debug')('x-ray:error');
  * Crawler methods
  */
 
-var methods = [ 'concurrency', 'throttle', 'timeout', 'driver', 'delay', 'limit'];
+var methods = ['concurrency', 'throttle', 'timeout', 'driver', 'delay', 'limit'];
 
 /**
  * Export
@@ -92,7 +92,7 @@ function Xray() {
         // ensure that a@href is a URL
         if (!isUrl(url)) {
           debug('%s is not a url!', url);
-          return next(new Error(url + ' is not a URL'));
+          return next();
         }
 
         debug('resolved "%s" to a %s', scope, url);
@@ -113,11 +113,7 @@ function Xray() {
         var limit = --state.limit;
 
         // create the stream
-        stream = stream
-          ? stream
-          : paginate
-          ? stream_array(state.stream)
-          : stream_object(state.stream);
+        stream = stream ? stream : paginate ? stream_array(state.stream) : stream_object(state.stream);
 
         if (paginate) {
           if (isArray(obj)) {
@@ -270,10 +266,7 @@ function Xray() {
  */
 
 function root(selector) {
-  return ('string' == typeof selector || isArray(selector))
-    && !~selector.indexOf('@')
-    && !isUrl(selector)
-    && selector;
+  return ('string' == typeof selector || isArray(selector)) && !~selector.indexOf('@') && !isUrl(selector) && selector;
 }
 
 /**
@@ -288,7 +281,8 @@ function compact(arr) {
   return arr.filter(function(val) {
     if (null == val) return false;
     if (undefined !== val.length) return 0 !== val.length;
-    for (var key in val) if (has.call(val, key)) return true;
+    for (var key in val)
+      if (has.call(val, key)) return true;
     return false;
   });
 }
@@ -300,7 +294,7 @@ function compact(arr) {
  */
 
 function stream_array(stream) {
-  if (!stream) return function(){};
+  if (!stream) return function() {};
   var first = true;
 
   return function _stream_array(data, end) {
@@ -331,7 +325,7 @@ function stream_array(stream) {
  */
 
 function stream_object(stream) {
-  if (!stream) return function(){};
+  if (!stream) return function() {};
   var first = true;
 
   return function _stream_object(data, end) {
