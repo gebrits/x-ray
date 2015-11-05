@@ -33,7 +33,7 @@ var error = require('debug')('x-ray:error');
  * Crawler methods
  */
 
-var methods = [ 'concurrency', 'throttle', 'timeout', 'driver', 'delay', 'limit'];
+var methods = ['concurrency', 'throttle', 'timeout', 'driver', 'delay', 'limit'];
 
 /**
  * Export
@@ -70,8 +70,7 @@ function Xray() {
       if (1 == arguments.length) { // Assume this is a root node
         fn = parent;
         parent = undefined;
-      }
-      else if (isUrl(parent) && !source) { // this is also a root node
+      } else if (isUrl(parent) && !source) { // this is also a root node
         source = parent;
         parent = undefined;
       }
@@ -90,8 +89,7 @@ function Xray() {
           var $ = load(html, source);
           node.html($, next);
         });
-      }
-      else if (isAttr(source)) {
+      } else if (isAttr(source)) {
         debug('resolving to a url: %s', source);
 
         // dynamically resolved source must have a parent context
@@ -131,8 +129,7 @@ function Xray() {
             if (err) return next(err);
             next(null, values);
           })
-        }
-        else {
+        } else {
           debug('resolved "%s" to a %s', source, url);
           xray.request(url, function(err, html) {
             if (err) return next(err);
@@ -140,9 +137,10 @@ function Xray() {
             node.html($, next);
           });
         }
-      }
-      else {
-        if (parent && source) { throw new Error('Two sources of html provided. I don\'t know which to use!'); }
+      } else {
+        if (parent && source) {
+          throw new Error('Two sources of html provided. I don\'t know which to use!');
+        }
         var $ = load(parent || source);
         node.html($, next);
       }
@@ -153,11 +151,9 @@ function Xray() {
         var limit = --state.limit;
 
         // create the stream
-        stream = stream
-          ? stream
-          : paginate
-            ? stream_array(state.stream)
-            : stream_object(state.stream);
+
+        stream = stream ? stream : paginate ? stream_array(state.stream) : stream_object(state.stream);
+
 
         if (paginate) {
           if (isArray(obj)) {
@@ -220,25 +216,21 @@ function Xray() {
             }
           });
         });
-      }
-      else {
+      } else {
         walk(selector, function(v, k, next) {
           if ('string' == typeof v) {
             var value = resolve($, root(scope), v);
             return next(null, value);
-          }
-          else if ('function' == typeof v) {
+          } else if ('function' == typeof v) {
             $scope = $.find ? $.find(scope) : $(scope)
             v(scope ? $scope : $, function(err, obj) {
               if (err) return next(err);
               return next(null, obj);
             });
-          }
-          else if (isArray(v)) {
+          } else if (isArray(v)) {
             if ('string' == typeof v[0]) {
               return next(null, resolve($, root(scope), v));
-            }
-            else if ('object' == typeof v[0] || 'function' == typeof v[0]) {
+            } else if ('object' == typeof v[0] || 'function' == typeof v[0]) {
               var $scope = $.find ? $.find(scope) : $(scope);
               var pending = $scope.length;
               var out = [];
@@ -257,12 +249,10 @@ function Xray() {
                   }
                 });
               });
-            }
-            else {
+            } else {
               return next(null, []);
             }
-          }
-          else {
+          } else {
             return next();
           }
         }, function(err, obj) {
@@ -295,7 +285,7 @@ function Xray() {
       }
 
       node(function(err) {
-        if (err) state.stream.emit('error', err);
+        if (err) ret.emit('error', err);
       })
 
       return ret;
@@ -333,10 +323,7 @@ function Xray() {
  */
 
 function root(selector) {
-  return ('string' == typeof selector || isArray(selector))
-    && !~selector.indexOf('@')
-    && !isUrl(selector)
-    && selector;
+  return ('string' == typeof selector || isArray(selector)) && !~selector.indexOf('@') && !isUrl(selector) && selector;
 }
 
 /**
@@ -351,7 +338,8 @@ function compact(arr) {
   return arr.filter(function(val) {
     if (null == val) return false;
     if (undefined !== val.length) return 0 !== val.length;
-    for (var key in val) if (has.call(val, key)) return true;
+    for (var key in val)
+      if (has.call(val, key)) return true;
     return false;
   });
 }
@@ -363,7 +351,7 @@ function compact(arr) {
  */
 
 function stream_array(stream) {
-  if (!stream) return function(){};
+  if (!stream) return function() {};
   var first = true;
 
   return function _stream_array(data, end) {
@@ -394,7 +382,7 @@ function stream_array(stream) {
  */
 
 function stream_object(stream) {
-  if (!stream) return function(){};
+  if (!stream) return function() {};
   var first = true;
 
   return function _stream_object(data, end) {
