@@ -91,6 +91,7 @@ function Xray() {
 
         // ensure that a@href is a URL
         if (!isUrl(url)) {
+          console.log("url, scope", url, scope);
           debug('%s is not a url!', url);
           return next();
         }
