@@ -48,12 +48,13 @@ module.exports = Xray;
 function Xray() {
   var crawler = Crawler();
 
-  function xray(source, scope, selector) {
+  function xray(source, scope, selector, options) {
     var args = params(source, scope, selector);
     source = args.source;
     scope = args.scope;
     selector = args.selector;
-
+    options = options || {}; 
+  
     // state
     var state = assign({
       stream: false,
@@ -88,7 +89,7 @@ function Xray() {
           if (err) return next(err);
           var $ = load(html, source);
           node.html($, next);
-        });
+        },options);
       } else if (isAttr(source)) {
         debug('resolving to a url: %s', source);
 
@@ -103,7 +104,7 @@ function Xray() {
             if (err) return done(err);
             var $ = load(html, parent);
             node($, fn)
-          })
+          },options)
         }
 
         // ensure that attribute is a URL
@@ -122,7 +123,7 @@ function Xray() {
                 if (err) return done(err);
                 var $ = load(html, link);
                 node.html($, done);
-              })
+              },options)
             })
           })
           b.end(function(err, values) {
@@ -135,7 +136,7 @@ function Xray() {
             if (err) return next(err);
             var $ = load(html, url);
             node.html($, next);
-          });
+          },options);
         }
       } else {
         if (parent && source) {
@@ -186,7 +187,7 @@ function Xray() {
             if (err) return next(err);
             var $ = load(html, url);
             node.html($, next);
-          });
+          },options);
 
         } else {
           stream(obj, true);
@@ -294,13 +295,13 @@ function Xray() {
     return node;
   }
 
-  xray.request = function(url, fn) {
+  xray.request = function(url, fn, options) {
     debug('fetching %s', url);
     crawler(url, function(err, ctx) {
       if (err) return fn(err);
       debug('got response for %s with status code: %s', url, ctx.status);
       return fn(null, ctx.body);
-    })
+    },options)
   }
 
   // expose crawler methods
