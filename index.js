@@ -208,7 +208,7 @@ function Xray() {
         if (!pending) return fn(null, out);
         $single_scope.each(function(i, el) {
           var $innerscope = $single_scope.eq(i);
-          var node = xray(selector);
+          var node = xray(selector, undefined, undefined, options);
           node($innerscope, function(err, obj) {
             if (err) return fn(err);
             out[i] = obj;
@@ -241,7 +241,7 @@ function Xray() {
 
               $scope.each(function(i, el) {
                 var $innerscope = $scope.eq(i);
-                var node = 'object' == typeof v[0] ? xray(v[0]) : v[0];
+                var node = 'object' == typeof v[0] ? xray(v[0], undefined, undefined, options) : v[0];
                 node($innerscope, function(err, obj) {
                   if (err) return next(err);
                   out[i] = obj;
