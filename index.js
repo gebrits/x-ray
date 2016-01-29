@@ -48,9 +48,9 @@ module.exports = Xray;
 function Xray() {
   var crawler = Crawler();
 
-  function xray(source, scope, selector, options) {
-    var args = params(source, scope, selector);
-    source = args.source;
+  function xray(sourceIn, scope, selector, options) {
+    var args = params(sourceIn, scope, selector);
+    sourceIn = args.source;
     scope = args.scope;
     selector = args.selector;
     options = options || {}; 
@@ -71,18 +71,20 @@ function Xray() {
       if (1 == arguments.length) { // Assume this is a root node
         fn = parent;
         parent = undefined;
-      } else if (isUrl(parent) && !source) { // this is also a root node
-        source = parent;
+      } else if (isUrl(parent) && !sourceIn) { // this is also a root node
+        sourceIn = parent;
         parent = undefined;
       }
 
+      var source = typeof sourceIn === "function" ? sourceIn(parent) : sourceIn;
+      
       debug('params: %j', {
         parent: parent,
         source: source,
         scope: scope,
         selector: selector
       });
-
+      
       if (isUrl(source)) {
         debug('starting at: %s', source);
         xray.request(source, function(err, html) {
