@@ -45,16 +45,16 @@ module.exports = Xray;
  * Initialize X-ray
  */
 
-function Xray() {
-  var crawler = Crawler();
+function Xray(driver) {
+  var crawler = Crawler(driver);
 
   function xray(sourceIn, scope, selector, options) {
     var args = params(sourceIn, scope, selector);
     sourceIn = args.source;
     scope = args.scope;
     selector = args.selector;
-    options = options || {}; 
-  
+    options = options || {};
+
     // state
     var state = assign({
       stream: false,
@@ -77,21 +77,21 @@ function Xray() {
       }
 
       var source = typeof sourceIn === "function" ? sourceIn(parent) : sourceIn;
-      
+
       debug('params: %j', {
         parent: parent,
         source: source,
         scope: scope,
         selector: selector
       });
-      
+
       if (isUrl(source)) {
         debug('starting at: %s', source);
-        xray.request(source, function(err, html) {
+        xray.request(source, function (err, html) {
           if (err) return next(err);
           var $ = load(html, source);
           node.html($, next);
-        },options);
+        }, options);
       } else if (isAttr(source)) {
         debug('resolving to a url: %s', source);
 
@@ -102,11 +102,11 @@ function Xray() {
         }
         if (isUrl(parent)) {
           // request the parent url passed in, then re-evaluate node with html parent
-          return xray.request(parent, function(err, html) {
+          return xray.request(parent, function (err, html) {
             if (err) return done(err);
             var $ = load(html, parent);
             node($, fn)
-          },options)
+          }, options)
         }
 
         // ensure that attribute is a URL
@@ -119,26 +119,26 @@ function Xray() {
         if (isArray(url)) {
           debug('resolved "%s" to array [%s]', source, url.join(', '));
           var b = new Batch();
-          url.forEach(function(link) {
-            b.push(function(done) {
-              xray.request(link, function(err, html) {
+          url.forEach(function (link) {
+            b.push(function (done) {
+              xray.request(link, function (err, html) {
                 if (err) return done(err);
                 var $ = load(html, link);
                 node.html($, done);
-              },options)
+              }, options)
             })
           })
-          b.end(function(err, values) {
+          b.end(function (err, values) {
             if (err) return next(err);
             next(null, values);
           })
         } else {
           debug('resolved "%s" to a %s', source, url);
-          xray.request(url, function(err, html) {
+          xray.request(url, function (err, html) {
             if (err) return next(err);
             var $ = load(html, url);
             node.html($, next);
-          },options);
+          }, options);
         }
       } else {
         if (parent && source) {
@@ -185,11 +185,11 @@ function Xray() {
           debug('paginating %j', url);
           isFinite(limit) && debug('%s page(s) left to crawl', limit)
 
-          xray.request(url, function(err, html) {
+          xray.request(url, function (err, html) {
             if (err) return next(err);
             var $ = load(html, url);
             node.html($, next);
-          },options);
+          }, options);
 
         } else {
           stream(obj, true);
@@ -200,7 +200,7 @@ function Xray() {
       return node;
     }
 
-    node.html = function($, fn) {
+    node.html = function ($, fn) {
       if (scope && isArray(scope)) {
         var single_scope = scope[0]
         if ('string' != typeof single_scope) throw new Error('scope must be a string!')
@@ -208,10 +208,10 @@ function Xray() {
         var pending = $single_scope.length;
         var out = [];
         if (!pending) return fn(null, out);
-        $single_scope.each(function(i, el) {
+        $single_scope.each(function (i, el) {
           var $innerscope = $single_scope.eq(i);
           var node = xray(selector, undefined, undefined, options);
-          node($innerscope, function(err, obj) {
+          node($innerscope, function (err, obj) {
             if (err) return fn(err);
             out[i] = obj;
             if (!--pending) {
@@ -220,13 +220,13 @@ function Xray() {
           });
         });
       } else {
-        walk(selector, function(v, k, next) {
+        walk(selector, function (v, k, next) {
           if ('string' == typeof v) {
             var value = resolve($, root(scope), v);
             return next(null, value);
           } else if ('function' == typeof v) {
             $scope = $.find ? $.find(scope) : $(scope)
-            v(scope ? $scope : $, function(err, obj) {
+            v(scope ? $scope : $, function (err, obj) {
               if (err) return next(err);
               return next(null, obj);
             });
@@ -241,10 +241,10 @@ function Xray() {
               // Handle the empty result set (thanks @jenbennings!)
               if (!pending) return next(null, out);
 
-              $scope.each(function(i, el) {
+              $scope.each(function (i, el) {
                 var $innerscope = $scope.eq(i);
                 var node = 'object' == typeof v[0] ? xray(v[0], undefined, undefined, options) : v[0];
-                node($innerscope, function(err, obj) {
+                node($innerscope, function (err, obj) {
                   if (err) return next(err);
                   out[i] = obj;
                   if (!--pending) {
@@ -258,26 +258,26 @@ function Xray() {
           } else {
             return next();
           }
-        }, function(err, obj) {
+        }, function (err, obj) {
           if (err) return fn(err);
           fn(null, obj, $);
         });
       }
     }
 
-    node.paginate = function(paginate) {
+    node.paginate = function (paginate) {
       if (!arguments.length) return state.paginate;
       state.paginate = paginate;
       return node;
     }
 
-    node.limit = function(limit) {
+    node.limit = function (limit) {
       if (!arguments.length) return state.limit;
       state.limit = limit;
       return node;
     }
 
-    node.write = function(path) {
+    node.write = function (path) {
       var ret;
 
       if (arguments.length) {
@@ -287,7 +287,7 @@ function Xray() {
         ret = store.createReadStream();
       }
 
-      node(function(err) {
+      node(function (err) {
         if (err) ret.emit('error', err);
       })
 
@@ -297,18 +297,18 @@ function Xray() {
     return node;
   }
 
-  xray.request = function(url, fn, options) {
+  xray.request = function (url, fn, options) {
     debug('fetching %s', url);
-    crawler(url, function(err, ctx) {
+    crawler(url, function (err, ctx) {
       if (err) return fn(err);
       debug('got response for %s with status code: %s', url, ctx.status);
       return fn(null, ctx.body);
-    },options)
+    }, options)
   }
 
   // expose crawler methods
-  methods.forEach(function(method) {
-    xray[method] = function() {
+  methods.forEach(function (method) {
+    xray[method] = function () {
       if (!arguments.length) return crawler[method]();
       crawler[method].apply(crawler, arguments);
       return this;
@@ -338,7 +338,7 @@ function root(selector) {
  */
 
 function compact(arr) {
-  return arr.filter(function(val) {
+  return arr.filter(function (val) {
     if (null == val) return false;
     if (undefined !== val.length) return 0 !== val.length;
     for (var key in val)
@@ -354,7 +354,7 @@ function compact(arr) {
  */
 
 function stream_array(stream) {
-  if (!stream) return function() {};
+  if (!stream) return function () {};
   var first = true;
 
   return function _stream_array(data, end) {
@@ -385,7 +385,7 @@ function stream_array(stream) {
  */
 
 function stream_object(stream) {
-  if (!stream) return function() {};
+  if (!stream) return function () {};
   var first = true;
 
   return function _stream_object(data, end) {

@@ -1,5 +1,5 @@
 var Xray = require("./index");
-var cheerio = require('cheerio');
+// var cheerio = require('cheerio');
 
 window.Xray = Xray;
-window.cheerio = cheerio;
+// window.cheerio = cheerio;
