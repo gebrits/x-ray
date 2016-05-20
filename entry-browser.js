@@ -1,5 +1,4 @@
-wnidow.Response = function Response(req, options) {
-  console.log("ASDASD");
+window.Response = function Response(req, options) {
   options = options || {};
   this.req = req;
   this.xhr = this.req.xhr;
